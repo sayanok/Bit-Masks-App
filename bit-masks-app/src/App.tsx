@@ -1,54 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import GmtData from "./GmtData";
 
-type binaryGmtDataListType = {
-  id: number;
-  country: string;
-  gmtInBinary: string;
-  isPlus: boolean;
-};
-
 const App: React.FC = () => {
-  const [binaryGmtDataList, setBinaryGmtDataList] = useState<Array<binaryGmtDataListType>>();
-  const [result, setResult] = useState<string>();
-
-  useEffect(() => {
-    convertGmtDataList();
-    // これだとうごかない
-  }, []);
+  const [numberEntered, setNumberEntered] = useState<number>();
+  const [convertedNumber, setConvertedNumber] = useState<number>();
+  const [result, setResult] = useState<Array<string>>([""]);
 
   function onClickHandler() {
-    // 入力された数字を2進数に変換する
-    // GtmDataの2進数化された値と入力された2進数を比較する
-    // 結果を出力する
+    setResult([]);
+    convertToBinaryBit();
+    compareValuesAndSetResult();
   }
 
-  function convertGmtDataList() {
-    const binaryGmtDataResult: Array<binaryGmtDataListType> = [];
-    let isPlus: boolean;
-
-    GmtData.map((countryAndGmt) => {
-      if (countryAndGmt.gmt > 0) {
-        isPlus = true;
-      } else {
-        isPlus = false;
-      }
-
-      let convertedData = {
-        id: countryAndGmt.id,
-        country: countryAndGmt.country,
-        gmtInBinary: countryAndGmt.gmt.toString(2).padStart(5, "0"),
-        isPlus: isPlus,
-      };
-      binaryGmtDataResult.push(convertedData);
-    });
-
-    setBinaryGmtDataList(binaryGmtDataResult);
-    console.log(binaryGmtDataList);
+  function convertToBinaryBit() {
+    if (numberEntered) {
+      setConvertedNumber(Number("0b" + "1".padStart(numberEntered + 12, "0").padEnd(24, "0")));
+    }
   }
+
+  function compareValuesAndSetResult() {
+    const temporaryResults = [""];
+    if (convertedNumber) {
+      GmtData.map((countryAndGmt) => {
+        if ((countryAndGmt.twentyfourbinarybits & convertedNumber).toString(2) === convertedNumber?.toString(2)) {
+          temporaryResults?.push(countryAndGmt.country);
+        } else {
+          console.log("不一致");
+        }
+      });
+    }
+    setResult(temporaryResults);
+  }
+
   return (
     <div className="App">
-      <input type="number"></input>
+      <input
+        type="number"
+        onChange={(e) => {
+          setNumberEntered(Number(e.target.value));
+        }}
+      ></input>
       <button
         onClick={() => {
           onClickHandler();
@@ -57,7 +48,6 @@ const App: React.FC = () => {
         都市の検索
       </button>
       <div>{result}</div>
-      {/* 0から入力した値と一致するGMTの都市を出力することにする */}
       {GmtData.map((countryAndGmt) => {
         return (
           <p>
@@ -71,7 +61,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
-// リストの数字を2進数に変換する;
-// 入力された値を2進数に変換する;
-// リストの数字を2進数に変換したものの集まりから、AND検索で入力された値の2進数を比較、、、？
