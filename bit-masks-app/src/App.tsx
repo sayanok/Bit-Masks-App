@@ -3,33 +3,43 @@ import GmtData from "./GmtData";
 
 const App: React.FC = () => {
   const [numberEntered, setNumberEntered] = useState<number>();
-  const [convertedNumber, setConvertedNumber] = useState<number>();
-  const [result, setResult] = useState<Array<string>>([""]);
+  const [result, setResult] = useState<Array<string> | string>([]);
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   function onClickHandler() {
     setResult([]);
-    convertToBinaryBit();
-    compareValuesAndSetResult();
+    setErrorMessage("");
+    const convertedNumber = convertToBinaryBit();
+    compareValuesAndSetResult(convertedNumber);
   }
 
   function convertToBinaryBit() {
-    if (numberEntered) {
-      setConvertedNumber(Number("0b" + "1".padStart(numberEntered + 12, "0").padEnd(24, "0")));
+    if (numberEntered !== undefined && -12 <= numberEntered && numberEntered <= 12) {
+      const tempNum = Number("0b" + "1".padStart(numberEntered + 12, "0").padEnd(24, "0"));
+      return tempNum;
+    } else {
+      setErrorMessage("-12以上12以下の値を入力してください。");
+      throw Error("-12以上12以下の値を入力してください。");
     }
   }
 
-  function compareValuesAndSetResult() {
-    const temporaryResults = [""];
-    if (convertedNumber) {
-      GmtData.map((countryAndGmt) => {
-        if ((countryAndGmt.twentyfourbinarybits & convertedNumber).toString(2) === convertedNumber?.toString(2)) {
-          temporaryResults?.push(countryAndGmt.country);
-        } else {
-          console.log("不一致");
-        }
-      });
+  function compareValuesAndSetResult(convertedNumber: number) {
+    // convert
+    const temporaryResults: Array<string> | string = [];
+    GmtData.map((countryAndGmt) => {
+      if ((countryAndGmt.twentyfourbinarybits & convertedNumber).toString(2) === convertedNumber?.toString(2)) {
+        temporaryResults?.push(countryAndGmt.country);
+      } else {
+        console.log("不一致");
+      }
+    });
+
+    // setResult
+    if (temporaryResults.length === 0) {
+      setResult("一致する国は存在しません。");
+    } else {
+      setResult(temporaryResults);
     }
-    setResult(temporaryResults);
   }
 
   return (
@@ -47,7 +57,18 @@ const App: React.FC = () => {
       >
         都市の検索
       </button>
-      <div>{result}</div>
+
+      <div>{errorMessage}</div>
+      <p>結果</p>
+      {typeof result !== "string" ? (
+        result.map((countryName) => {
+          return <p>{countryName}</p>;
+        })
+      ) : (
+        <p>{result}</p>
+      )}
+
+      <hr></hr>
       {GmtData.map((countryAndGmt) => {
         return (
           <p>
