@@ -14,9 +14,17 @@ const App: React.FC = () => {
   }
 
   function convertToBinaryBit() {
-    if (numberEntered !== undefined && -12 <= numberEntered && numberEntered <= 12) {
-      const tempNum = Number("0b" + "1".padStart(numberEntered + 12, "0").padEnd(24, "0"));
+    if (numberEntered !== undefined && 1 <= numberEntered && numberEntered <= 12) {
+      // 0 の場合　0b0_000_000_000_001_000_000_000_000
+      const tempNum = Number("0b0000000000001" + "1".padStart(numberEntered, "1").padEnd(13, "0"));
+      console.log(tempNum);
+      console.log("0b0000000000001000000_000_000");
+      console.log("1b0000000000000100000_000_000");
+      console.log("2b0000000000000010000_000_000");
       return tempNum;
+    } else if (numberEntered !== undefined && -12 <= numberEntered && numberEntered <= 0) {
+      const tempNum = Number("0b" + "1".padStart(numberEntered + 12, "0").padEnd(24, "0"));
+      return Number("0b0000000000001" + "1".padStart(numberEntered, "1").padEnd(13, "0"));
     } else {
       setErrorMessage("-12以上12以下の値を入力してください。");
       throw Error("-12以上12以下の値を入力してください。");
